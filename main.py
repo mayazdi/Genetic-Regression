@@ -1,3 +1,4 @@
+import operator
 import random
 import struct
 
@@ -20,7 +21,7 @@ class CoEf:
         self.a = a
         self.b = b
         self.c = c
-        self.fitness = fitness(a, b, c)
+        self.fitness = fitness_calc(a, b, c)
 
 
 def init():
@@ -53,7 +54,7 @@ def report(individual):
     print("-----------------------------------------------")
 
 
-def fitness(a, b, c):
+def fitness_calc(a, b, c):
     diff = 0
     for i in range(0, 999):
         diff += abs(yCos[i] - poly(xCos[i], a, b, c))
@@ -63,6 +64,7 @@ def fitness(a, b, c):
 # Cut-Off half with low fitness
 def selection():
     population.sort(key=lambda x: x.fitness, reverse=True)
+    # population.sort(key=lambda x: x.fitness, reverse=True)
     size = int(len(population) / 2)
     for i in range(0, size):
         population.remove(population[0])
@@ -105,8 +107,29 @@ def crossover():
         population.append(addition[i])
 
 
+def mute(num):
+    index = random.randint(0, 31)
+    ind = num
+    ind = float_to_bin(ind)
+    ind = ind[0:index] + str(random.randint(0, 1)) + ind[index + 1:len(ind)]
+    while not (-50 <= float(bin_to_float(ind)) <= 50):
+        index = random.randint(0, 31)
+        ind = num
+        ind = float_to_bin(ind)
+        ind = ind[0:index] + str(random.randint(0, 1)) + ind[index + 1:len(ind)]
+    result = float(bin_to_float(ind))
+    return result
+
+
 def mutate():
-    pass
+    size = len(population)
+    for i in range(0, size):
+        probability = random.randint(0, 100)
+        if probability < 10:
+            A = mute(population[i].a)
+            B = mute(population[i].b)
+            C = mute(population[i].c)
+            population[i] = CoEf(A, B, C)
 
 
 xCos = numpy.genfromtxt('x_train.csv', delimiter=',')
@@ -114,7 +137,7 @@ yCos = numpy.genfromtxt('y_train.csv', delimiter=',')
 population = list()
 generation = int(input("Number of Generation:"))
 genome = int(input("Number of Genome:"))
-print("----------------Initializing Genetic Algorithm----------------")
+print("-------------------Initializing Genetic Algorithm-------------------")
 init()
 for i in range(0, generation):
     draw(population[0])
