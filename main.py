@@ -1,7 +1,16 @@
 import random
+import struct
 
 import matplotlib.pyplot as plt
 import numpy
+
+
+def float_to_bin(num):
+    return format(struct.unpack('!I', struct.pack('!f', num))[0], '032b')
+
+
+def bin_to_float(binary):
+    return struct.unpack('!f', struct.pack('!I', int(binary, 2)))[0]
 
 
 class CoEf:
@@ -24,21 +33,21 @@ def poly(x, a, b, c):
     return a * x ** 2 + b * x + c
 
 
-def draw(CoEf):
+def draw(coef):
     # for x in range(-100, 100, 1):
     # fig = plt.figure()
     # axes = fig.add_subplot(111)
     v = numpy.arange(-100, 100, 1)
-    plt.plot(v, poly(v, CoEf.a, CoEf.b, CoEf.c))
+    plt.plot(v, poly(v, coef.a, coef.b, coef.c))
     plt.show()
 
 
 def report():
-    print("Best found yet:", end="\t")
-    print(population[0].a, end=" ")
-    print(population[0].b, end=" ")
-    print(population[0].c, end=" ")
-    print(population[0].c)
+    print("Best found yet:", end="\n a:")
+    print(population[0].a, end="\t b:")
+    print(population[0].b, end="\t c:")
+    print(population[0].c, end="\n fitness:")
+    print(population[0].fitness)
     print("-----------------------------------------------")
 
 
@@ -50,7 +59,9 @@ def fitness(genome):
     return diff
 
 
+# Cut-Off half with low fitness
 def selection():
+    # shayad bayad reverse konam
     population.sort(key=fitness)
     size = int(len(population) / 2)
     for i in range(0, size):
@@ -58,6 +69,7 @@ def selection():
 
 
 def crossover():
+
     pass
 
 
