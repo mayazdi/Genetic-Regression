@@ -20,6 +20,7 @@ class CoEf:
         self.a = a
         self.b = b
         self.c = c
+        self.fitness = fitness(a, b, c)
 
 
 def init():
@@ -27,11 +28,11 @@ def init():
         a = random.uniform(-50, 50)
         b = random.uniform(-50, 50)
         c = random.uniform(-50, 50)
-        population.append(CoEf(a, b, c, 0))
+        population.append(CoEf(a, b, c))
 
 
 def poly(x, a, b, c):
-    return a * x ** 2 + b * x + c
+    return (a * (x ** 2)) + (b * x) + c
 
 
 def draw(coef):
@@ -52,49 +53,52 @@ def report(individual):
     print("-----------------------------------------------")
 
 
-def fitness(genome):
+def fitness(a, b, c):
     diff = 0
     for i in range(0, 999):
-        diff += abs(
-            yCos[i] - poly(xCos[i], genome.a, genome.b, genome.c))
-    genome.fitness = diff
-    return
+        diff += abs(yCos[i] - poly(xCos[i], a, b, c))
+    return diff
 
 
 # Cut-Off half with low fitness
 def selection():
-    # shayad bayad reverse konam
-    population.sort(key=fitness)
+    population.sort(key=lambda x: x.fitness, reverse=True)
     size = int(len(population) / 2)
     for i in range(0, size):
         population.remove(population[0])
 
 
-def findIndex():
-    pass
+def findIndex(size):
+    rand_probability = random.randint(1, 100)
+    if rand_probability <= 33:
+        index = random.randint(0, int(size / 2))
+    else:
+        index = random.randint(int(size / 2), size - 1)
+    return index
 
 
 def cross(num1, num2):
     index = random.randint(0, 31)
-    child1 = float_to_bin(population[1])[0:index] + float_to_bin(population[1])[index:]
-    child2 = float_to_bin(population[1])[0:index] + float_to_bin(population[1])[index:]
+    child1 = float_to_bin(num1)[0:index] + float_to_bin(num2)[index:len(float_to_bin(num1))]
+    child2 = float_to_bin(num2)[0:index] + float_to_bin(num1)[index:len(float_to_bin(num1))]
+
     while (not (-50 <= float(bin_to_float(child1)) <= 50)) or (not (-50 <= float(bin_to_float(child2)) <= 50)):
         index = random.randint(0, 31)
-        child1 = float_to_bin(population[1])[0:index] + float_to_bin(population[1])[index:]
-        child2 = float_to_bin(population[1])[0:index] + float_to_bin(population[1])[index:]
-    li = [child1, child2]
+        child1 = float_to_bin(num1)[0:index] + float_to_bin(num2)[index:len(float_to_bin(num1))]
+        child2 = float_to_bin(num2)[0:index] + float_to_bin(num1)[index:len(float_to_bin(num1))]
+    li = [bin_to_float(child1), bin_to_float(child2)]
     return li
 
 
 def crossover():
     size = len(population)
     addition = []
-    for i in range(0, size):
-        index1 = findIndex()
-        index2 = findIndex()
-        A = cross(index1.a, index2.a)
-        B = cross(index1.b, index2.b)
-        C = cross(index1.c, index2.c)
+    for i in range(0, size, 2):
+        index1 = findIndex(size)
+        index2 = findIndex(size)
+        A = cross(population[index1].a, population[index2].a)
+        B = cross(population[index1].b, population[index2].b)
+        C = cross(population[index1].c, population[index2].c)
         addition.append(CoEf(A[0], B[0], C[0]))
         addition.append(CoEf(A[1], B[1], C[1]))
     for i in range(0, len(addition)):
@@ -103,10 +107,6 @@ def crossover():
 
 def mutate():
     pass
-    # for i in range(0, len(population)):
-    #     probability = random.randint(0, 100000)
-    #     if probability < 10:
-    #         gen = population[i]
 
 
 xCos = numpy.genfromtxt('x_train.csv', delimiter=',')
