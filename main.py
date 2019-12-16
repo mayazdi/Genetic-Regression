@@ -14,11 +14,12 @@ def bin_to_float(binary):
 
 
 class CoEf:
-    def __init__(self, a, b, c, f):
+    fitness = None
+
+    def __init__(self, a, b, c):
         self.a = a
         self.b = b
         self.c = c
-        self.fitness = f
 
 
 def init():
@@ -42,12 +43,12 @@ def draw(coef):
     plt.show()
 
 
-def report():
+def report(individual):
     print("Best found yet:", end="\n a:")
-    print(population[0].a, end="\t b:")
-    print(population[0].b, end="\t c:")
-    print(population[0].c, end="\n fitness:")
-    print(population[0].fitness)
+    print(individual.a, end="\t b:")
+    print(individual.b, end="\t c:")
+    print(individual.c, end="\n fitness:")
+    print(individual.fitness)
     print("-----------------------------------------------")
 
 
@@ -56,7 +57,8 @@ def fitness(genome):
     for i in range(0, 999):
         diff += abs(
             yCos[i] - poly(xCos[i], genome.a, genome.b, genome.c))
-    return diff
+    genome.fitness = diff
+    return
 
 
 # Cut-Off half with low fitness
@@ -68,9 +70,35 @@ def selection():
         population.remove(population[0])
 
 
-def crossover():
-
+def findIndex():
     pass
+
+
+def cross(num1, num2):
+    index = random.randint(0, 31)
+    child1 = float_to_bin(population[1])[0:index] + float_to_bin(population[1])[index:]
+    child2 = float_to_bin(population[1])[0:index] + float_to_bin(population[1])[index:]
+    while (not (-50 <= float(bin_to_float(child1)) <= 50)) or (not (-50 <= float(bin_to_float(child2)) <= 50)):
+        index = random.randint(0, 31)
+        child1 = float_to_bin(population[1])[0:index] + float_to_bin(population[1])[index:]
+        child2 = float_to_bin(population[1])[0:index] + float_to_bin(population[1])[index:]
+    li = [child1, child2]
+    return li
+
+
+def crossover():
+    size = len(population)
+    addition = []
+    for i in range(0, size):
+        index1 = findIndex()
+        index2 = findIndex()
+        A = cross(index1.a, index2.a)
+        B = cross(index1.b, index2.b)
+        C = cross(index1.c, index2.c)
+        addition.append(CoEf(A[0], B[0], C[0]))
+        addition.append(CoEf(A[1], B[1], C[1]))
+    for i in range(0, len(addition)):
+        population.append(addition[i])
 
 
 def mutate():
@@ -89,6 +117,8 @@ genome = int(input("Number of Genome:"))
 print("----------------Initializing Genetic Algorithm----------------")
 init()
 for i in range(0, generation):
+    draw(population[0])
+    report(population[0])
     selection()
     crossover()
     mutate()
